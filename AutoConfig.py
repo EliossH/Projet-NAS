@@ -5,12 +5,32 @@ from shutil import rmtree
 CONFIG_PATH = 'configReseau.json'
 EXPORT_PATH = 'exportConfig\\'
 
+class OSPF_Router:
+    def __init__(self, OSPF_json):
+        self.raw_json = OSPF_json
+
+        self.load()
+    
+    def load(self):
+        self.process_id = self.raw_json["process_id"]
+        self.router_id = self.raw_json["router_id"]
+        self.area = self.raw_json["area"]
+        self.interfaces = self.raw_json["interfaces"]
+    
+    def export_router(self):
+        return f"""router ospf {self.process_id}
+ router-id {self.router_id}\n"""
+
+    def export_interface(self):
+        return f" ip ospf {self.process_id} area {self.area}\n"
+
 class Interface:
     def __init__(self, interface_json):
         print(interface_json)
         self.raw_json = interface_json
+        self.protocols=[]
 
-        #self.load()
+        self.load()
     
     def load(self):
         if self.raw_json['id'][0] == 'g':
@@ -24,10 +44,25 @@ class Interface:
             self.name='Loopback0'
         
         self.mask = self.raw_json['mask']
-        self.ip = self.raw_json['adresse']
+        self.ip = self.raw_json['address']
+        print(self.name, self.ip, self.mask)
     
+
+    def add_protocol(self, protocol):
+        self.protocols.append(protocol)
+
     def export(self):
-        pass
+        to_send=f"""interface {self.name}
+ ip address {self.ip} {self.mask}\n"""
+
+        for protocol in self.protocols:
+            to_send+=protocol.export_interface()
+        
+        if self.type != 'Loopback':
+            to_send+=" negotiation auto\n"
+
+        return to_send
+
 
 class Router:
     def __init__(self, router_name, router_json):
@@ -35,15 +70,65 @@ class Router:
         self.name=router_name
         self.raw_json=router_json
         self.interfaces=[]
+        self.protocols=[]
 
-        #self.load()
+        self.load()
     
     def load(self):
         for interface in self.raw_json['interfaces']:
             self.interfaces.append(Interface(interface))
+        if "OSPF" in self.raw_json.get('protocols',{}).keys():
+            ospf = OSPF_Router(self.raw_json['protocols']["OSPF"])
+            self.protocols.append(ospf)
+            for i in self.raw_json['protocols']["OSPF"]["interfaces"]:
+                self.interfaces[i].add_protocol(ospf)
+
+    def export_interfaces(self):
+        to_send=""
+        for interface in self.interfaces:
+            to_send+=interface.export()
+        return to_send
+
+    def export_vrf(self):
+        return ''
+
+    def export_protocol(self):
+        to_send=''
+        for protocol in self.protocols:
+            to_send+=protocol.export_router()
+        return to_send
 
     def export(self):
-        return ''
+        return f"""version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+hostname {self.name}
+boot-start-marker
+boot-end-marker
+{self.export_vrf()}no aaa new-model
+no ip icmp rate-limit unreachable
+ip cef
+no ip domain lookup
+no ipv6 cef
+multilink bundle-name authenticated
+ip tcp synwait-time 5
+{self.export_interfaces()}{self.export_protocol()}ip forward-protocol nd
+no ip http server
+no ip http secure-server
+control-plane
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line vty 0 4
+ login
+end"""
 
 class AutoConfig:
     def __init__(self):
