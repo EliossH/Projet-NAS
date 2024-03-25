@@ -5,7 +5,7 @@ from shutil import rmtree
 CONFIG_PATH = 'configReseau.json'
 EXPORT_PATH = 'exportConfig\\'
 
-class OSPF_Router:
+class OSPF:
     def __init__(self, OSPF_json):
         self.raw_json = OSPF_json
 
@@ -78,7 +78,7 @@ class Router:
         for interface in self.raw_json['interfaces']:
             self.interfaces.append(Interface(interface))
         if "OSPF" in self.raw_json.get('protocols',{}).keys():
-            ospf = OSPF_Router(self.raw_json['protocols']["OSPF"])
+            ospf = OSPF(self.raw_json['protocols']["OSPF"])
             self.protocols.append(ospf)
             for i in self.raw_json['protocols']["OSPF"]["interfaces"]:
                 self.interfaces[i].add_protocol(ospf)
