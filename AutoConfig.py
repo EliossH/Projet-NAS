@@ -10,7 +10,7 @@ class Interface:
         print(interface_json)
         self.raw_json = interface_json
 
-        #self.load()
+        self.load()
     
     def load(self):
         if self.raw_json['id'][0] == 'g':
@@ -24,10 +24,16 @@ class Interface:
             self.name='Loopback0'
         
         self.mask = self.raw_json['mask']
-        self.ip = self.raw_json['adresse']
+        self.ip = self.raw_json['address']
+        print(self.name, self.ip, self.mask)
     
     def export(self):
-        pass
+        to_send=f"""interface {self.name}
+ ip address {self.ip} {self.mask}\n"""
+        if self.type != 'Loopback':
+            to_send+=" negotiation auto\n"
+        return to_send
+
 
 class Router:
     def __init__(self, router_name, router_json):
@@ -36,14 +42,55 @@ class Router:
         self.raw_json=router_json
         self.interfaces=[]
 
-        #self.load()
+        self.load()
     
     def load(self):
         for interface in self.raw_json['interfaces']:
             self.interfaces.append(Interface(interface))
 
-    def export(self):
+    def export_interfaces(self):
+        to_send=""
+        for interface in self.interfaces:
+            to_send+=interface.export()
+        return to_send
+
+    def export_vrf(self):
         return ''
+
+    def export_protocol(self):
+        return ''
+
+    def export(self):
+        return f"""version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+hostname {self.name}
+boot-start-marker
+boot-end-marker
+{self.export_vrf()}no aaa new-model
+no ip icmp rate-limit unreachable
+ip cef
+no ip domain lookup
+no ipv6 cef
+multilink bundle-name authenticated
+ip tcp synwait-time 5
+{self.export_interfaces()}{self.export_protocol()}ip forward-protocol nd
+no ip http server
+no ip http secure-server
+control-plane
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line vty 0 4
+ login
+end"""
 
 class AutoConfig:
     def __init__(self):
