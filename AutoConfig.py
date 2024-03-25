@@ -5,10 +5,30 @@ from shutil import rmtree
 CONFIG_PATH = 'configReseau.json'
 EXPORT_PATH = 'exportConfig\\'
 
+class OSPF_Router:
+    def __init__(self, OSPF_json):
+        self.raw_json = OSPF_json
+
+        self.load()
+    
+    def load(self):
+        self.process_id = self.raw_json["process_id"]
+        self.router_id = self.raw_json["router_id"]
+        self.area = self.raw_json["area"]
+        self.interfaces = self.raw_json["interfaces"]
+    
+    def export_router(self):
+        return f"""router ospf {self.process_id}
+ router-id {self.router_id}\n"""
+
+    def export_interface(self):
+        return f" ip ospf {self.process_id} area {self.area}\n"
+
 class Interface:
     def __init__(self, interface_json):
         print(interface_json)
         self.raw_json = interface_json
+        self.protocols=[]
 
         self.load()
     
@@ -27,11 +47,20 @@ class Interface:
         self.ip = self.raw_json['address']
         print(self.name, self.ip, self.mask)
     
+
+    def add_protocol(self, protocol):
+        self.protocols.append(protocol)
+
     def export(self):
         to_send=f"""interface {self.name}
  ip address {self.ip} {self.mask}\n"""
+
+        for protocol in self.protocols:
+            to_send+=protocol.export_interface()
+        
         if self.type != 'Loopback':
             to_send+=" negotiation auto\n"
+
         return to_send
 
 
@@ -41,12 +70,18 @@ class Router:
         self.name=router_name
         self.raw_json=router_json
         self.interfaces=[]
+        self.protocols=[]
 
         self.load()
     
     def load(self):
         for interface in self.raw_json['interfaces']:
             self.interfaces.append(Interface(interface))
+        if "OSPF" in self.raw_json.get('protocols',{}).keys():
+            ospf = OSPF_Router(self.raw_json['protocols']["OSPF"])
+            self.protocols.append(ospf)
+            for i in self.raw_json['protocols']["OSPF"]["interfaces"]:
+                self.interfaces[i].add_protocol(ospf)
 
     def export_interfaces(self):
         to_send=""
@@ -58,7 +93,10 @@ class Router:
         return ''
 
     def export_protocol(self):
-        return ''
+        to_send=''
+        for protocol in self.protocols:
+            to_send+=protocol.export_router()
+        return to_send
 
     def export(self):
         return f"""version 15.2
