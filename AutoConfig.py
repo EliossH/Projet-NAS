@@ -5,6 +5,23 @@ from shutil import rmtree
 CONFIG_PATH = 'configReseau.json'
 EXPORT_PATH = 'exportConfig\\'
 
+class AddressFamily:
+    def __init__(self):
+        pass
+
+class BGP:
+    def __init__(self):
+        pass
+
+    def load(self):
+        pass
+
+    def export_router(self):
+        pass
+
+    def export_interface(self):
+        pass
+
 class OSPF:
     def __init__(self, OSPF_json):
         self.raw_json = OSPF_json

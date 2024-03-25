@@ -23,40 +23,38 @@
                 "area": 0,
                 "interfaces": [1, 0]
             },
-            "BGP" :{
-                "as-number":1,
-                "router-id": "1.1.1.1",
+            "iBGP" :{
+                "as-number": 1,
+                "interfaces" : [0],
+                "neighbor-addresses" : ["2.2.2.2", "3.3.3.3", "4.4.4.4"],
+                "neighbor-name" : 0
+            },
+            "eBGP" :{
+                "as_number": 1,
+				"router_id": "1.1.1.1",
+                "interfaces" : [2, 3],
+                "neighbor-addresses": ["192.168.11.2", "192.168.21.2"],
+                "neighbors-as-number": ["11", "21"],
                 "VRFs": [
                     {
                         "name": "Client_A",
+                        "as_number": 1,
                         "route_distinguisher": "111:111",
                         "route_target_export": "111:1111",
                         "route_target_import": "111:1111",
-                        "interfaces":[3],
-                        "members":[{"neighbor-addresses":"192.168.11.2",
-                                    "remote-as":11,
-                                    "update-source":[]}]
+                        "interface": 3,
+                        "remote_as": 11
                     },
                     {
                         "name": "Client_B",
+                        "as_number": 1,
                         "route_distinguisher": "222:222",
                         "route_target_export": "222:2222",
                         "route_target_import": "222:2222",
-                        "interfaces":[2],
-                        "members":[{"neighbor-addresses":"192.168.12.2",
-                                    "remote-as":12,
-                                    "update-source":[]}]
+                        "interface": 2,
+                        "remote_as": 21
                     }
-                ],
-                "IPV4":[{"neighbor-addresses":"2.2.2.2",
-                        "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"3.3.3.3",
-                        "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"4.4.4.4",
-                        "remote-as":1,
-                        "update-source":[0]}]
+                ]
             }
         }
     },
@@ -84,40 +82,37 @@
                 "area": 0,
                 "interfaces": [1, 0]
             },
-            "BGP" :{
-                "as-number":1,
-                "router-id": "4.4.4.4",
+            "iBGP" :{
+                "as-number": 1,
+                "neighbor-addresses" : ["1.1.1.1", "3.3.3.3", "4.4.4.4"],
+                "neighbor-name" : 0
+            },
+            "eBGP" :{
+                "as_number": 1,
+				"router_id": "4.4.4.4",
+                "interfaces" : ["g2/0", "g3/0"],
+                "neighbor-addresses": ["192.168.12.2", "192.168.22.2"],
+                "neighbors-as-number": ["12", "22"],
                 "VRFs": [
                     {
                         "name": "Client_A",
+                        "as_number": 1,
                         "route_distinguisher": "111:111",
                         "route_target_export": "111:1111",
                         "route_target_import": "111:1111",
-                        "interfaces":[3],
-                        "members":[{"neighbor-addresses":"192.168.21.2",
-                                    "remote-as":21,
-                                    "update-source":[]}]
+                        "interface": 3,
+                        "remote_as": 11
                     },
                     {
                         "name": "Client_B",
+                        "as_number": 1,
                         "route_distinguisher": "222:222",
                         "route_target_export": "222:2222",
                         "route_target_import": "222:2222",
-                        "interfaces":[2],
-                        "members":[{"neighbor-addresses":"192.168.22.2",
-                                    "remote-as":22,
-                                    "update-source":[]}]
+                        "interface": 2,
+                        "remote_as": 21
                     }
-                ],
-                "IPV4":[{"neighbor-addresses":"2.2.2.2",
-                        "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"3.3.3.3",
-                        "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"1.1.1.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+                ]
             }
         }
     },
@@ -141,19 +136,10 @@
                 "area": 0,
                 "interfaces": [1, 2, 0]
             },
-            "BGP" :{
-                "as-number":1,
-                "router-id": "2.2.2.2",
-                "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"4.4.4.4",
-                        "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"3.3.3.3",
-                        "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"1.1.1.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+            "iBGP" :{
+                "as-number": 1,
+                "neighbor-addresses" : ["1.1.1.1", "2.2.2.2", "4.4.4.4"],
+                "neighbor-name" : 0
             }
         }
     },
@@ -177,19 +163,10 @@
                 "area": 0,
                 "interfaces": [2, 1, 0]
             },
-            "BGP" :{
-                "as-number":1,
-                "router-id": "3.3.3.3",
-                "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"4.4.4.4",
-                        "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"2.2.2.2",
-                        "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"1.1.1.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+            "iBGP" :{
+                "as-number": 1,
+                "neighbor-addresses" : ["1.1.1.1", "2.2.2.2", "3.3.3.3"],
+                "neighbor-name" : 0
             }
         }
     },
@@ -203,15 +180,13 @@
                         "mask" : "255.255.255.252"}],
         
         "protocols" : {
-            "BGP" :{
-                "as-number":11,
-                "router-id": "11.11.11.11",
-                "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"192.168.11.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+            "eBGP" :{
+                "as_number": 1,
+                "router_id": "192.168.11.2",
+                "interfaces" : [1],
+                "neighbor-addresses": ["192.168.1.1"],
+                "neighbors-as-number": ["1"]
             }
-            
         }
     },
     "CE12": {
@@ -224,13 +199,12 @@
                         "mask" : "255.255.255.252"}],
 
         "protocols" : {
-            "BGP" :{
-                "as-number":12,
-                "router-id": "12.12.12.12",
-                "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"192.168.12.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+            "eBGP" :{
+                "as_number": 1,
+                "router_id": "192.168.12.2",
+                "interfaces" : [1],
+                "neighbor-addresses": ["192.168.3.2"],
+                "neighbors-as-number": ["1"]
             }
         }
     },
@@ -244,13 +218,12 @@
                         "mask" : "255.255.255.252"}],
 
         "protocols" : {
-            "BGP" :{
-                "as-number":21,
-                "router-id": "21.21.21.21",
-                "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"192.168.21.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+            "eBGP" :{
+                "as_number": 1,
+                "router_id": "192.168.21.2",
+                "interfaces" : [1],
+                "neighbor-addresses": ["192.168.1.1"],
+                "neighbors-as-number": ["1"]
             }
         }
     },
@@ -264,13 +237,12 @@
                         "mask" : "255.255.255.252"}],
 
         "protocols" : {
-            "BGP" :{
-                "as-number":22,
-                "router-id": "22.22.22.22",
-                "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"192.168.22.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+            "eBGP" :{
+                "as_number": 1,
+                "router_id": "192.168.22.2",
+                "interfaces" : [1],
+                "neighbor-addresses": ["192.168.3.2"],
+                "neighbors-as-number": ["1"]
             }
         }
     }
