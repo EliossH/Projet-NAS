@@ -15,7 +15,7 @@ class AddressFamily:
     def export(self):
         to_send=f" address-family {self.name}\n"
         if self.redistribute_connected:
-            to_send+="  redistribute-connected\n"
+            to_send+="  redistribute connected\n"
         for member in self.members:
             if member.get("remote-as","")!="":
                 to_send+=f"  neighbor {member['neighbor-address']} remote-as {member['remote-as']}\n"
