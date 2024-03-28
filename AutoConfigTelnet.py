@@ -1,6 +1,6 @@
 import telnetlib3
 import asyncio
-import gns3fy
+from gns3fy import Gns3Connector
 
 ##créer la fonction qui retourne la correspondance routeur hostname - port associé
 ##créer la fonction qui charge les fichiers de confs dans un tableau
@@ -23,6 +23,37 @@ async def connect_to_router(host, port, config_commands):
         print(f"Impossible de se connecter au routeur {host} sur le port {port}. Connexion refusée.")
     except Exception as e:
         print(f"Une erreur s'est produite lors de la connexion au routeur {host} sur le port {port}: {e}")
+
+
+def get_hostname_ports():
+    api = Gns3Connector('http://localhost:3080')
+
+# Nom du projet que vous souhaitez récupérer
+    nom_projet = "projet_NAS_2024.gns3"
+
+    # Récupération du projet spécifié par son nom
+    project = api.project(name=nom_projet)
+
+    # Vérifier si le projet existe
+    if project:
+        # Récupération de tous les nœuds dans le projet
+        nodes = project.nodes()
+
+        # Parcourir tous les nœuds pour obtenir leurs informations
+        for node in nodes:
+            print("Nom du nœud:", node.name)
+            
+            # Vérifier si le nœud est un nœud 'ethernet'
+            if node.node_type == 'ethernet':
+                # Récupérer les informations sur les ports ethernet du nœud
+                interfaces = node.ethernet_interfaces()
+                for interface in interfaces:
+                    print("Nom du port:", interface.port_name)
+    else:
+        print("Le projet spécifié n'existe pas.")
+
+
+
 
 async def main():  
     host = "127.0.0.1"  
@@ -71,8 +102,8 @@ async def main():
     "end"
 ]
 
-    tasks = [connect_to_router(host, 5000, config_commands)]# for port in ports]  # Création des tâches pour chaque connexion
-    await asyncio.gather(*tasks)  # Attente que toutes les connexions soient terminées
-
+    #tasks = [connect_to_router(host, 5000, config_commands)]# for port in ports]  # Création des tâches pour chaque connexion
+    #await asyncio.gather(*tasks)  # Attente que toutes les connexions soient terminées
+    get_hostname_ports()
 # Exécuter la boucle d'événements asyncio
 asyncio.run(main())
