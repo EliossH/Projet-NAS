@@ -54,8 +54,10 @@
                         "update-source":"Loopback0"},
                         {"neighbor-address":"4.4.4.4",
                         "remote-as":1,
-                        "update-source":"Loopback0"}]
-            }
+                        "update-source":"Loopback0"}],
+                "VPNV4":[{"neighbor-address":"4.4.4.4"}]
+            },
+            "MPLS" : [1]
         }
     },
     "PE2": {
@@ -113,8 +115,10 @@
                         "update-source":"Loopback0"},
                         {"neighbor-address":"1.1.1.1",
                         "remote-as":1,
-                        "update-source":"Loopback0"}]
-            }
+                        "update-source":"Loopback0"}],
+                "VPNV4":[{"neighbor-address":"1.1.1.1"}]
+            },
+            "MPLS" : [1]
         }
     },
     "P1": {
@@ -150,7 +154,8 @@
                         {"neighbor-address":"1.1.1.1",
                         "remote-as":1,
                         "update-source":"Loopback0"}]
-            }
+            },
+            "MPLS" : [1, 2]
         }
     },
     "P2": {
@@ -186,7 +191,8 @@
                         {"neighbor-address":"1.1.1.1",
                         "remote-as":1,
                         "update-source":"Loopback0"}]
-            }
+            },
+            "MPLS" : [1, 2]
         }
     },
     "CE11": {
