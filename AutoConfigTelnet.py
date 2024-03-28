@@ -1,6 +1,7 @@
 import telnetlib3
 import asyncio
-from gns3fy import Gns3Connector
+from gns3fy import Gns3Connector, Project, Node, Link
+from tabulate import tabulate
 
 ##créer la fonction qui retourne la correspondance routeur hostname - port associé
 ##créer la fonction qui charge les fichiers de confs dans un tableau
@@ -9,7 +10,7 @@ from gns3fy import Gns3Connector
 async def connect_to_router(host, port, config_commands):
     try:
         # Tentative de connexion au routeur via Telnet
-        reader, writer = await telnetlib3.open_connection(host, port)
+        reader,writer = await telnetlib3.open_connection(host, port)
         print(f"Connexion réussie au routeur {host} sur le port {port}")
 
         # Envoyer des commandes de configuration
@@ -25,40 +26,36 @@ async def connect_to_router(host, port, config_commands):
         print(f"Une erreur s'est produite lors de la connexion au routeur {host} sur le port {port}: {e}")
 
 
-def get_hostname_ports():
-    api = Gns3Connector('http://localhost:3080')
+def get_router_ports():
+    SERVER_URL = "http://localhost:3080"
+    # Define the connector object, by default its port is 3080
+    server = Gns3Connector(url=SERVER_URL)
 
-# Nom du projet que vous souhaitez récupérer
-    nom_projet = "projet_NAS_2024.gns3"
+    try:
+        # Now obtain a project from the server
+        lab = Project(name="projet_NAS_2024", connector=server)
+        lab.get()
 
-    # Récupération du projet spécifié par son nom
-    project = api.project(name=nom_projet)
+        # Print number of nodes in the project
+        print("Number of nodes in the project:", len(lab.nodes))
 
-    # Vérifier si le projet existe
-    if project:
-        # Récupération de tous les nœuds dans le projet
-        nodes = project.nodes()
-
-        # Parcourir tous les nœuds pour obtenir leurs informations
-        for node in nodes:
-            print("Nom du nœud:", node.name)
+        # Iterate through each node in the project
+        for node in lab.nodes:
+            print("Node Name:", node.name)
+            print("Node Type:", node.console)
             
-            # Vérifier si le nœud est un nœud 'ethernet'
-            if node.node_type == 'ethernet':
-                # Récupérer les informations sur les ports ethernet du nœud
-                interfaces = node.ethernet_interfaces()
-                for interface in interfaces:
-                    print("Nom du port:", interface.port_name)
-    else:
-        print("Le projet spécifié n'existe pas.")
-
-
+            # Check if the node is a router
+            
+    except Exception as e:
+        print("Error retrieving project information:", e)
 
 
 async def main():  
     host = "127.0.0.1"  
     ports = range(5000, 5016)  
     config_commands = [
+    "enable",
+    "conf t",
     "version 15.2",
     "service timestamps debug datetime msec",
     "service timestamps log datetime msec",
@@ -102,8 +99,9 @@ async def main():
     "end"
 ]
 
-    #tasks = [connect_to_router(host, 5000, config_commands)]# for port in ports]  # Création des tâches pour chaque connexion
-    #await asyncio.gather(*tasks)  # Attente que toutes les connexions soient terminées
-    get_hostname_ports()
+    tasks = [connect_to_router(host, 5003, config_commands)]# for port in ports]  # Création des tâches pour chaque connexion
+    await asyncio.gather(*tasks)  # Attente que toutes les connexions soient terminées
+    
 # Exécuter la boucle d'événements asyncio
-asyncio.run(main())
+#asyncio.run(main())
+get_router_ports()
