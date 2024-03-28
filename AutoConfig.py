@@ -6,17 +6,24 @@ CONFIG_PATH = 'configReseau.json'
 EXPORT_PATH = 'exportConfig\\'
 
 class AddressFamily:
-    def __init__(self, name, address_family_json):
+    def __init__(self, name, address_family_json, redistribute_connected=False, send_community=False):
         self.name = name
         self.members = address_family_json
+        self.redistribute_connected=redistribute_connected
+        self.send_community=send_community
     
     def export(self):
         to_send=f" address-family {self.name}\n"
+        if self.redistribute_connected:
+            to_send+="  redistribute-connected\n"
         for member in self.members:
-            to_send+=f"  neighbor {member['neighbor-address']} remote-as {member['remote-as']}\n"
+            if member.get("remote-as","")!="":
+                to_send+=f"  neighbor {member['neighbor-address']} remote-as {member['remote-as']}\n"
             if member.get("update-source","")!="":
                 to_send+=f"  neighbor {member['neighbor-address']} update-source {member['update-source']}\n"
             to_send+=f"  neighbor {member['neighbor-address']} activate\n"
+            if self.send_community:
+                to_send+= f"  neighbor {member['neighbor-address']} send-community extended\n"
         to_send+=" exit-address-family\n"
         return to_send
 
@@ -35,7 +42,7 @@ class VRF:
         self.route_target_export=self.raw_json["route_target_export"]
         self.route_target_import=self.raw_json["route_target_import"]
         self.interfaces=self.raw_json["interfaces"]
-        self.address_familys.append(AddressFamily(f"vrf {self.name}",self.raw_json["members"]))
+        self.address_familys.append(AddressFamily(f"vrf {self.name}",self.raw_json["members"],redistribute_connected=True))
 
     def export(self):
         to_send=f"vrf definition {self.name}\n"
@@ -48,6 +55,19 @@ class VRF:
     def export_interface(self):
         return f" vrf forwarding {self.name}\n"
 
+
+class MPLS:
+    def __init__(self, MPLS_json):
+        self.raw_json = MPLS_json
+        self.interfaces = MPLS_json
+    
+    def export_interface(self):
+        return f" mpls ip\n"
+    
+    def export_router(self):
+        return ""
+
+
 class BGP:
     def __init__(self, bgp_json):
         self.raw_json=bgp_json
@@ -59,7 +79,10 @@ class BGP:
     def load(self):
         self.AS = self.raw_json['as-number']
         self.router_id = self.raw_json['router-id']
-        self.address_familys.append(AddressFamily('ipv4',self.raw_json['IPV4']))
+        if "IPV4" in self.raw_json.keys():
+            self.address_familys.append(AddressFamily('ipv4',self.raw_json['IPV4']))
+        if "VPNV4" in self.raw_json.keys():
+            self.address_familys.append(AddressFamily('vpnv4',self.raw_json['VPNV4'],send_community=True))
     
     def add_address_family(self, address_family):
         self.address_familys.append(address_family)
@@ -85,8 +108,7 @@ class OSPF:
         self.interfaces = self.raw_json["interfaces"]
     
     def export_router(self):
-        return f"""router ospf {self.process_id}
- router-id {self.router_id}\n"""
+        return f"""router ospf {self.process_id}\n router-id {self.router_id}\n"""
 
     def export_interface(self):
         return f" ip ospf {self.process_id} area {self.area}\n"
@@ -160,13 +182,19 @@ class Router:
         if "BGP" in self.raw_json.get('protocols',{}).keys():
             bgp = BGP(self.raw_json['protocols']["BGP"])
             self.protocols.append(bgp)
-            for vrf_data in self.raw_json['protocols']["BGP"]["VRFs"]:
+            for vrf_data in self.raw_json['protocols']["BGP"].get("VRFs",[]):
                 vrf = VRF(vrf_data)
                 self.vrfs.append(vrf)
                 for interfaces in vrf.interfaces :
                     self.interfaces[interfaces].add_vrf(vrf)
                 for address_family in vrf.address_familys:
                     bgp.add_address_family(address_family)
+        if "MPLS" in self.raw_json.get('protocols',{}).keys():
+            mpls = MPLS(self.raw_json['protocols']['MPLS'])
+            self.protocols.append(mpls)
+            for interface in mpls.interfaces :
+                self.interfaces[interface].add_protocol(mpls)
+
 
 
     def export_interfaces(self):
@@ -223,6 +251,7 @@ class AutoConfig:
     def __init__(self):
         self.raw_json={}
         self.routers = []
+        self.PC=[]
 
     def load(self,json_file):
         self.__init__()
@@ -230,7 +259,10 @@ class AutoConfig:
         self.raw_json = json.load(f)
         print(self.raw_json)
         for router_name in self.raw_json.keys():
-            self.routers.append(Router(router_name,self.raw_json[router_name]))
+            if "PC" not in router_name:
+                self.routers.append(Router(router_name,self.raw_json[router_name]))
+            else :
+                self.PC.append(self.raw_json[router_name])
 
 
     def export(self,export_path):
