@@ -115,7 +115,6 @@ class OSPF:
 
 class Interface:
     def __init__(self, interface_json):
-        print(interface_json)
         self.raw_json = interface_json
         self.protocols=[]
         self.vrfs=[]
@@ -135,7 +134,6 @@ class Interface:
         
         self.mask = self.raw_json['mask']
         self.ip = self.raw_json['address']
-        print(self.name, self.ip, self.mask)
     
 
     def add_protocol(self, protocol):
@@ -156,13 +154,14 @@ class Interface:
         
         if self.type != 'Loopback':
             to_send+=" negotiation auto\n"
+        
+        to_send+=" no shutdown\n"
 
         return to_send
 
 
 class Router:
     def __init__(self, router_name, router_json):
-        print(router_name, router_json)
         self.name=router_name
         self.raw_json=router_json
         self.interfaces=[]
@@ -257,7 +256,6 @@ class AutoConfig:
         self.__init__()
         f = open(json_file)
         self.raw_json = json.load(f)
-        print(self.raw_json)
         for router_name in self.raw_json.keys():
             if "PC" not in router_name:
                 self.routers.append(Router(router_name,self.raw_json[router_name]))
