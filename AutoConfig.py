@@ -283,7 +283,7 @@ class AutoConfig:
             f.write(config.export())
             f.close()
 
-if __name__ == '__main__':
+def execute_AutoConfig():
     config = AutoConfig()
     config.load(CONFIG_PATH)
     rmtree(EXPORT_PATH, ignore_errors=True)
