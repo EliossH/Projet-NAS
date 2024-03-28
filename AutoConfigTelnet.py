@@ -1,7 +1,8 @@
 import telnetlib3
 import asyncio
 from gns3fy import Gns3Connector, Project, Node, Link
-from tabulate import tabulate
+import os
+import AutoConfig
 
 ##créer la fonction qui retourne la correspondance routeur hostname - port associé
 ##créer la fonction qui charge les fichiers de confs dans un tableau
@@ -30,78 +31,76 @@ def get_router_ports():
     SERVER_URL = "http://localhost:3080"
     # Define the connector object, by default its port is 3080
     server = Gns3Connector(url=SERVER_URL)
+    telnet_ports = {}
 
     try:
         # Now obtain a project from the server
         lab = Project(name="projet_NAS_2024", connector=server)
         lab.get()
 
-        # Print number of nodes in the project
-        print("Number of nodes in the project:", len(lab.nodes))
-
         # Iterate through each node in the project
         for node in lab.nodes:
-            print("Node Name:", node.name)
-            print("Node Type:", node.console)
+            telnet_ports[node.name]=node.console
+            #print("Node Name:", node.name)
+            #print("Node Port:", node.console)
             
             # Check if the node is a router
-            
+         
     except Exception as e:
         print("Error retrieving project information:", e)
 
+    return telnet_ports
+
+
+def lister_fichiers(repertoire):
+    # Initialiser une liste pour stocker les noms des fichiers
+    fichiers = []
+    
+    AutoConfig.execute_AutoConfig()
+
+    # Parcourir tous les fichiers dans le répertoire spécifié
+    for nom_fichier in os.listdir(repertoire):
+        # Vérifier si le chemin est un fichier
+        chemin_absolu = os.path.join(repertoire, nom_fichier)
+        if os.path.isfile(chemin_absolu):
+            # Ajouter le nom du fichier à la liste
+            fichiers.append(nom_fichier.split(".")[0])
+    
+    return fichiers
+
+
 
 async def main():  
-    host = "127.0.0.1"  
-    ports = range(5000, 5016)  
-    config_commands = [
-    "enable",
-    "conf t",
-    "version 15.2",
-    "service timestamps debug datetime msec",
-    "service timestamps log datetime msec",
-    "hostname PE2",
-    "boot-start-marker",
-    "boot-end-marker",
-    "no aaa new-model",
-    "no ip icmp rate-limit unreachable",
-    "ip cef",
-    "no ip domain lookup",
-    "no ipv6 cef",
-    "multilink bundle-name authenticated",
-    "ip tcp synwait-time 5",
-    "interface Loopback0",
-    " ip address 4.4.4.4 255.255.255.255",
-    "interface GigabitEthernet1/0",
-    " ip address 192.168.3.3 255.255.255.252",
-    " negotiation auto",
-    "interface GigabitEthernet2/0",
-    " ip address 192.168.22.1 255.255.255.252",
-    " negotiation auto",
-    "interface GigabitEthernet3/0",
-    " ip address 192.168.11.1 255.255.255.252",
-    " negotiation auto",
-    "ip forward-protocol nd",
-    "no ip http server",
-    "no ip http secure-server",
-    "control-plane",
-    "line con 0",
-    " exec-timeout 0 0",
-    " privilege level 15",
-    " logging synchronous",
-    " stopbits 1",
-    "line aux 0",
-    " exec-timeout 0 0",
-    " privilege level 15",
-    " logging synchronous",
-    " stopbits 1",
-    "line vty 0 4",
-    " login",
-    "end"
-]
+    host = "127.0.0.1"
+    liste_routeurs=lister_fichiers("./exportConfig")
+    liste_ports=get_router_ports()
 
-    tasks = [connect_to_router(host, 5003, config_commands)]# for port in ports]  # Création des tâches pour chaque connexion
-    await asyncio.gather(*tasks)  # Attente que toutes les connexions soient terminées
+    tasks=[]
+    tab_debut=["\r\n","\r\n","\r\n"]
+    config_commands =""
+    for i in range (len(liste_routeurs)):
+        
+        try:
+            # Ouvrir le fichier en mode lecture
+            with open("./exportConfig/"+liste_routeurs[i]+".cfg", 'r') as fichier:
+                # Lire tout le contenu du fichier
+                config_commands = fichier.read().split("\n")
+                
+        except FileNotFoundError:
+            print("Le fichier spécifié est introuvable.")
+        except Exception as e:
+            print("Une erreur s'est produite lors du chargement du fichier:", e)
+        
+        tasks.append(connect_to_router(host, liste_ports[liste_routeurs[i]], tab_debut+config_commands))
+    await asyncio.gather(*tasks)
+ 
+    
+
+
+# for port in ports]  # Création des tâches pour chaque connexion
+      # Attente que toutes les connexions soient terminées
     
 # Exécuter la boucle d'événements asyncio
-#asyncio.run(main())
-get_router_ports()
+asyncio.run(main())
+#print(get_router_ports()["PE1"])
+#print(lister_fichiers("./exportConfig"))
