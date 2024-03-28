@@ -212,9 +212,8 @@ class Router:
             to_send+=protocol.export_router()
         return to_send
 
-    def export(self):
-        return f"""enable
-conf t
+    def old_export(self):
+        return f"""
 version 15.2
 service timestamps debug datetime msec
 service timestamps log datetime msec
@@ -245,6 +244,9 @@ line aux 0
 line vty 0 4
  login
 end"""
+
+    def export(self):
+        return f"conf t\nhostname {self.name}\n{self.export_vrf()}{self.export_interfaces()}{self.export_protocol()}"
 
 
 class PC:
