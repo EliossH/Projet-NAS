@@ -152,9 +152,6 @@ class Interface:
         for protocol in self.protocols:
             to_send+=protocol.export_interface()
         
-        if self.type != 'Loopback':
-            to_send+=" negotiation auto\n"
-        
         to_send+=" no shutdown\n"
 
         return to_send
