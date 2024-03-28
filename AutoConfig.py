@@ -6,21 +6,71 @@ CONFIG_PATH = 'configReseau.json'
 EXPORT_PATH = 'exportConfig\\'
 
 class AddressFamily:
-    def __init__(self):
-        pass
+    def __init__(self, name, address_family_json):
+        self.name = name
+        self.members = address_family_json
+    
+    def export(self):
+        to_send=f" address-family {self.name}\n"
+        for member in self.members:
+            to_send+=f"  neighbor {member['neighbor-address']} remote-as {member['remote-as']}\n"
+            if member.get("update-source","")!="":
+                to_send+=f"  neighbor {member['neighbor-address']} update-source {member['update-source']}\n"
+            to_send+=f"  neighbor {member['neighbor-address']} activate\n"
+        to_send+=" exit-address-family\n"
+        return to_send
 
-class BGP:
-    def __init__(self):
-        pass
 
+class VRF:
+    def __init__(self, vrf_json):
+        self.raw_json = vrf_json
+        self.interfaces = []
+        self.address_familys=[]
+
+        self.load()
+    
     def load(self):
-        pass
+        self.name=self.raw_json["name"]
+        self.route_distinguisher=self.raw_json["route_distinguisher"]
+        self.route_target_export=self.raw_json["route_target_export"]
+        self.route_target_import=self.raw_json["route_target_import"]
+        self.interfaces=self.raw_json["interfaces"]
+        self.address_familys.append(AddressFamily(f"vrf {self.name}",self.raw_json["members"]))
 
-    def export_router(self):
-        pass
+    def export(self):
+        to_send=f"vrf definition {self.name}\n"
+        to_send+=f" rd {self.route_distinguisher}\n"
+        to_send+=f" route-target export {self.route_target_export}\n"
+        to_send+=f" route-target import {self.route_target_import}\n"
+        to_send+=" address-family ipv4\n exit-address-family\n"
+        return to_send
 
     def export_interface(self):
-        pass
+        return f" vrf forwarding {self.name}\n"
+
+class BGP:
+    def __init__(self, bgp_json):
+        self.raw_json=bgp_json
+        self.address_familys=[]
+
+
+        self.load()
+
+    def load(self):
+        self.AS = self.raw_json['as-number']
+        self.router_id = self.raw_json['router-id']
+        self.address_familys.append(AddressFamily('ipv4',self.raw_json['IPV4']))
+    
+    def add_address_family(self, address_family):
+        self.address_familys.append(address_family)
+
+    def export_router(self):
+        to_send=f'router bgp {self.AS}\n'
+        to_send+=f" bgp router-id {self.router_id}\n"
+        to_send+=" bgp log-neighbor-changes\n"
+        for address_family in self.address_familys:
+            to_send+=address_family.export()
+        return to_send
 
 class OSPF:
     def __init__(self, OSPF_json):
@@ -46,6 +96,7 @@ class Interface:
         print(interface_json)
         self.raw_json = interface_json
         self.protocols=[]
+        self.vrfs=[]
 
         self.load()
     
@@ -68,9 +119,15 @@ class Interface:
     def add_protocol(self, protocol):
         self.protocols.append(protocol)
 
+    def add_vrf(self, vrf):
+        self.vrfs.append(vrf)
+
     def export(self):
-        to_send=f"""interface {self.name}
- ip address {self.ip} {self.mask}\n"""
+        to_send=f"interface {self.name}\n"
+        for vrf in self.vrfs:
+            to_send+=vrf.export_interface()
+        
+        to_send+=f" ip address {self.ip} {self.mask}\n"
 
         for protocol in self.protocols:
             to_send+=protocol.export_interface()
@@ -88,6 +145,7 @@ class Router:
         self.raw_json=router_json
         self.interfaces=[]
         self.protocols=[]
+        self.vrfs=[]
 
         self.load()
     
@@ -99,6 +157,17 @@ class Router:
             self.protocols.append(ospf)
             for i in self.raw_json['protocols']["OSPF"]["interfaces"]:
                 self.interfaces[i].add_protocol(ospf)
+        if "BGP" in self.raw_json.get('protocols',{}).keys():
+            bgp = BGP(self.raw_json['protocols']["BGP"])
+            self.protocols.append(bgp)
+            for vrf_data in self.raw_json['protocols']["BGP"]["VRFs"]:
+                vrf = VRF(vrf_data)
+                self.vrfs.append(vrf)
+                for interfaces in vrf.interfaces :
+                    self.interfaces[interfaces].add_vrf(vrf)
+                for address_family in vrf.address_familys:
+                    bgp.add_address_family(address_family)
+
 
     def export_interfaces(self):
         to_send=""
@@ -107,7 +176,10 @@ class Router:
         return to_send
 
     def export_vrf(self):
-        return ''
+        to_send=''
+        for vrf in self.vrfs:
+            to_send+=vrf.export()
+        return to_send
 
     def export_protocol(self):
         to_send=''

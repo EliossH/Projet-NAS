@@ -33,9 +33,8 @@
                         "route_target_export": "111:1111",
                         "route_target_import": "111:1111",
                         "interfaces":[3],
-                        "members":[{"neighbor-addresses":"192.168.11.2",
-                                    "remote-as":11,
-                                    "update-source":[]}]
+                        "members":[{"neighbor-address":"192.168.11.2",
+                                    "remote-as":11}]
                     },
                     {
                         "name": "Client_B",
@@ -43,20 +42,19 @@
                         "route_target_export": "222:2222",
                         "route_target_import": "222:2222",
                         "interfaces":[2],
-                        "members":[{"neighbor-addresses":"192.168.12.2",
-                                    "remote-as":12,
-                                    "update-source":[]}]
+                        "members":[{"neighbor-address":"192.168.12.2",
+                                    "remote-as":12}]
                     }
                 ],
-                "IPV4":[{"neighbor-addresses":"2.2.2.2",
+                "IPV4":[{"neighbor-address":"2.2.2.2",
                         "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"3.3.3.3",
+                        "update-source":"Loopback0"},
+                        {"neighbor-address":"3.3.3.3",
                         "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"4.4.4.4",
+                        "update-source":"Loopback0"},
+                        {"neighbor-address":"4.4.4.4",
                         "remote-as":1,
-                        "update-source":[0]}]
+                        "update-source":"Loopback0"}]
             }
         }
     },
@@ -94,9 +92,8 @@
                         "route_target_export": "111:1111",
                         "route_target_import": "111:1111",
                         "interfaces":[3],
-                        "members":[{"neighbor-addresses":"192.168.21.2",
-                                    "remote-as":21,
-                                    "update-source":[]}]
+                        "members":[{"neighbor-address":"192.168.21.2",
+                                    "remote-as":21}]
                     },
                     {
                         "name": "Client_B",
@@ -104,20 +101,19 @@
                         "route_target_export": "222:2222",
                         "route_target_import": "222:2222",
                         "interfaces":[2],
-                        "members":[{"neighbor-addresses":"192.168.22.2",
-                                    "remote-as":22,
-                                    "update-source":[]}]
+                        "members":[{"neighbor-address":"192.168.22.2",
+                                    "remote-as":22}]
                     }
                 ],
-                "IPV4":[{"neighbor-addresses":"2.2.2.2",
+                "IPV4":[{"neighbor-address":"2.2.2.2",
                         "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"3.3.3.3",
+                        "update-source":"Loopback0"},
+                        {"neighbor-address":"3.3.3.3",
                         "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"1.1.1.1",
+                        "update-source":"Loopback0"},
+                        {"neighbor-address":"1.1.1.1",
                         "remote-as":1,
-                        "update-source":[0]}]
+                        "update-source":"Loopback0"}]
             }
         }
     },
@@ -145,15 +141,15 @@
                 "as-number":1,
                 "router-id": "2.2.2.2",
                 "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"4.4.4.4",
+                "IPV4":[{"neighbor-address":"4.4.4.4",
                         "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"3.3.3.3",
+                        "update-source":"Loopback0"},
+                        {"neighbor-address":"3.3.3.3",
                         "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"1.1.1.1",
+                        "update-source":"Loopback0"},
+                        {"neighbor-address":"1.1.1.1",
                         "remote-as":1,
-                        "update-source":[0]}]
+                        "update-source":"Loopback0"}]
             }
         }
     },
@@ -181,15 +177,15 @@
                 "as-number":1,
                 "router-id": "3.3.3.3",
                 "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"4.4.4.4",
+                "IPV4":[{"neighbor-address":"4.4.4.4",
                         "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"2.2.2.2",
+                        "update-source":"Loopback0"},
+                        {"neighbor-address":"2.2.2.2",
                         "remote-as":1,
-                        "update-source":[0]},
-                        {"neighbor-addresses":"1.1.1.1",
+                        "update-source":"Loopback0"},
+                        {"neighbor-address":"1.1.1.1",
                         "remote-as":1,
-                        "update-source":[0]}]
+                        "update-source":"Loopback0"}]
             }
         }
     },
@@ -207,9 +203,8 @@
                 "as-number":11,
                 "router-id": "11.11.11.11",
                 "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"192.168.11.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+                "IPV4":[{"neighbor-address":"192.168.11.1",
+                        "remote-as":1}]
             }
             
         }
@@ -228,9 +223,8 @@
                 "as-number":12,
                 "router-id": "12.12.12.12",
                 "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"192.168.12.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+                "IPV4":[{"neighbor-address":"192.168.12.1",
+                        "remote-as":1}]
             }
         }
     },
@@ -248,9 +242,8 @@
                 "as-number":21,
                 "router-id": "21.21.21.21",
                 "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"192.168.21.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+                "IPV4":[{"neighbor-address":"192.168.21.1",
+                        "remote-as":1}]
             }
         }
     },
@@ -268,9 +261,8 @@
                 "as-number":22,
                 "router-id": "22.22.22.22",
                 "VRFs": [],
-                "IPV4":[{"neighbor-addresses":"192.168.22.1",
-                        "remote-as":1,
-                        "update-source":[0]}]
+                "IPV4":[{"neighbor-address":"192.168.22.1",
+                        "remote-as":1}]
             }
         }
     }
