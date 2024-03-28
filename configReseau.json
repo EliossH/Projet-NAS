@@ -55,8 +55,7 @@
                         {"neighbor-address":"4.4.4.4",
                         "remote-as":1,
                         "update-source":"Loopback0"}],
-                "VPNV4":[{"neighbor-address":"4.4.4.4",
-                        "sendcommunity" : "extented"}]
+                "VPNV4":[{"neighbor-address":"4.4.4.4"}]
             },
             "MPLS" : [1]
         }
@@ -117,8 +116,7 @@
                         {"neighbor-address":"1.1.1.1",
                         "remote-as":1,
                         "update-source":"Loopback0"}],
-                "VPNV4":[{"neighbor-address":"1.1.1.1",
-                        "sendcommunity" : "extented"}]
+                "VPNV4":[{"neighbor-address":"1.1.1.1"}]
             },
             "MPLS" : [1]
         }
