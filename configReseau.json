@@ -55,7 +55,8 @@
                         {"neighbor-address":"4.4.4.4",
                         "remote-as":1,
                         "update-source":"Loopback0"}],
-                "VPNV4":[{"neighbor-address":"4.4.4.4"}]
+                "VPNV4":[{"neighbor-address":"4.4.4.4",
+                        "sendcommunity" : "extented"}]
             },
             "MPLS" : [1]
         }
@@ -66,7 +67,7 @@
                         "mask" : "255.255.255.255"},
                         
                         {"id" : "g1/0",
-                        "address": "192.168.3.3",
+                        "address": "192.168.3.2",
                         "mask" : "255.255.255.252"},
                     
                         {"id" : "g2/0",
@@ -116,7 +117,8 @@
                         {"neighbor-address":"1.1.1.1",
                         "remote-as":1,
                         "update-source":"Loopback0"}],
-                "VPNV4":[{"neighbor-address":"1.1.1.1"}]
+                "VPNV4":[{"neighbor-address":"1.1.1.1",
+                        "sendcommunity" : "extented"}]
             },
             "MPLS" : [1]
         }
