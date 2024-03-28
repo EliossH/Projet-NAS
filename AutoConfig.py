@@ -69,9 +69,10 @@ class MPLS:
 
 
 class BGP:
-    def __init__(self, bgp_json):
+    def __init__(self, bgp_json, redistribute_connected=False):
         self.raw_json=bgp_json
         self.address_familys=[]
+        self.redistribute_connected=redistribute_connected
 
 
         self.load()
@@ -80,7 +81,7 @@ class BGP:
         self.AS = self.raw_json['as-number']
         self.router_id = self.raw_json['router-id']
         if "IPV4" in self.raw_json.keys():
-            self.address_familys.append(AddressFamily('ipv4',self.raw_json['IPV4']))
+            self.address_familys.append(AddressFamily('ipv4',self.raw_json['IPV4'],redistribute_connected=self.redistribute_connected))
         if "VPNV4" in self.raw_json.keys():
             self.address_familys.append(AddressFamily('vpnv4',self.raw_json['VPNV4'],send_community=True))
     
@@ -176,7 +177,7 @@ class Router:
             for i in self.raw_json['protocols']["OSPF"]["interfaces"]:
                 self.interfaces[i].add_protocol(ospf)
         if "BGP" in self.raw_json.get('protocols',{}).keys():
-            bgp = BGP(self.raw_json['protocols']["BGP"])
+            bgp = BGP(self.raw_json['protocols']["BGP"],redistribute_connected=("CE" in self.name))
             self.protocols.append(bgp)
             for vrf_data in self.raw_json['protocols']["BGP"].get("VRFs",[]):
                 vrf = VRF(vrf_data)
