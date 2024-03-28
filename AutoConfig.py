@@ -42,7 +42,7 @@ class VRF:
         self.route_target_export=self.raw_json["route_target_export"]
         self.route_target_import=self.raw_json["route_target_import"]
         self.interfaces=self.raw_json["interfaces"]
-        self.address_familys.append(AddressFamily(f"vrf {self.name}",self.raw_json["members"],redistribute_connected=True))
+        self.address_familys.append(AddressFamily(f"ipv4 vrf {self.name}",self.raw_json["members"],redistribute_connected=True))
 
     def export(self):
         to_send=f"vrf definition {self.name}\n"
