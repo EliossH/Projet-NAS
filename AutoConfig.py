@@ -194,8 +194,6 @@ class Router:
             for interface in mpls.interfaces :
                 self.interfaces[interface].add_protocol(mpls)
 
-
-
     def export_interfaces(self):
         to_send=""
         for interface in self.interfaces:
@@ -215,7 +213,9 @@ class Router:
         return to_send
 
     def export(self):
-        return f"""version 15.2
+        return f"""enable
+conf t
+version 15.2
 service timestamps debug datetime msec
 service timestamps log datetime msec
 hostname {self.name}
@@ -246,27 +246,41 @@ line vty 0 4
  login
 end"""
 
+
+class PC:
+    def __init__(self, pc_name, pc_json):
+        self.name = pc_name
+        self.raw_json = pc_json
+        self.load()
+    
+    def load(self):
+        self.address = self.raw_json["address"]
+        self.mask = self.raw_json["mask"]
+        self.gateway = self.raw_json["gateway"]
+
+    def export(self):
+        return f"ip {self.address} {self.mask} {self.gateway}"
+
 class AutoConfig:
     def __init__(self):
         self.raw_json={}
-        self.routers = []
-        self.PC=[]
+        self.configs = []
 
     def load(self,json_file):
         self.__init__()
         f = open(json_file)
         self.raw_json = json.load(f)
-        for router_name in self.raw_json.keys():
-            if "PC" not in router_name:
-                self.routers.append(Router(router_name,self.raw_json[router_name]))
+        for config_name in self.raw_json.keys():
+            if "PC" not in config_name:
+                self.configs.append(Router(config_name,self.raw_json[config_name]))
             else :
-                self.PC.append(self.raw_json[router_name])
+                self.configs.append(PC(config_name,self.raw_json[config_name]))
 
 
     def export(self,export_path):
-        for router in self.routers:
-            f = open(export_path+router.name+".cfg",'w')
-            f.write(router.export())
+        for config in self.configs:
+            f = open(export_path+config.name+".cfg",'w')
+            f.write(config.export())
             f.close()
 
 if __name__ == '__main__':
