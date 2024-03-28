@@ -42,8 +42,8 @@
                         "route_target_export": "222:2222",
                         "route_target_import": "222:2222",
                         "interfaces":[2],
-                        "members":[{"neighbor-address":"192.168.12.2",
-                                    "remote-as":12}]
+                        "members":[{"neighbor-address":"192.168.21.2",
+                                    "remote-as":21}]
                     }
                 ],
                 "IPV4":[{"neighbor-address":"2.2.2.2",
@@ -94,8 +94,8 @@
                         "route_target_export": "111:1111",
                         "route_target_import": "111:1111",
                         "interfaces":[3],
-                        "members":[{"neighbor-address":"192.168.21.2",
-                                    "remote-as":21}]
+                        "members":[{"neighbor-address":"192.168.12.2",
+                                    "remote-as":12}]
                     },
                     {
                         "name": "Client_B",
