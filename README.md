@@ -69,7 +69,7 @@ La configuration OSPF se fait en 4 éléments :
 - process_id : L'identifiants du processus OSPF a créer
 - router_id : Son identifiants au sein du réseau OSPF
 - area : Le groupe de router auquel il appartient
-- interfaces : Une liste d'interfaces sur lesquelles échanger des paquets OSPF (C'est une liste d'inces faisant références aux indices des interfaces précédemment configuré) 
+- interfaces : Une liste d'interfaces sur lesquelles échanger des paquets OSPF (C'est une liste d'indices faisant références aux indices des interfaces précédemment configuré) 
 
 ```json
 {
