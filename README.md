@@ -9,14 +9,14 @@ Vous pouvez simplement lancer l'éxécutable `AutoConfigTelnet.exe` avec GNS3 d'
 
 ### Code Python
 
-Vous pouvez éxécuter `python3 AutoConfigTelnet.py` dans les mêmes conditions pour le même résultats.
+Vous pouvez éxécuter `python3 AutoConfigTelnet.py` dans les mêmes conditions pour le même résultat.
 
 ## Fichier d'intention
 
-Le fichier `configReseau.json` est un fichiers d'intentions associés aux réseau suiavnt décrit par `PROJET NAS Diagramme.pdf`.
+Le fichier `configReseau.json` est un fichier d'intentions associé au réseau suivant décrit par `PROJET NAS Diagramme.pdf`.
 
 ### Structure de base
-Le fichier d'intention est composés d'une liste de router/PC identifié par leurs noms dans GNS3.
+Le fichier d'intention est composé d'une liste de router/PC identifiés par leur nom dans GNS3.
 
 ```json
 {
@@ -26,7 +26,7 @@ Le fichier d'intention est composés d'une liste de router/PC identifié par leu
 }
 ```
 
-Pour chaque machine, on spécifie tout d'abords les interfaces et leur addressage IPv4:
+Pour chaque machine, on spécifie tout d'abord les interfaces et leur addressage IPv4:
 
 ```json
 {
@@ -66,10 +66,10 @@ On peut ensuite spécifié une liste de protoole à configurer sur la machine :
 ### OSPF
 
 La configuration OSPF se fait en 4 éléments :
-- process_id : L'identifiants du processus OSPF a créer
-- router_id : Son identifiants au sein du réseau OSPF
-- area : Le groupe de router auquel il appartient
-- interfaces : Une liste d'interfaces sur lesquelles échanger des paquets OSPF (C'est une liste d'indices faisant références aux indices des interfaces précédemment configuré) 
+- process_id : L'identifiant du processus OSPF a créer
+- router_id : Son identifiant au sein du réseau OSPF
+- area : Le groupe de routeurs auquel il appartient
+- interfaces : Une liste d'interfaces sur lesquelles échanger des paquets OSPF (C'est une liste d'indices faisant références aux indices des interfaces précédemment configurées) 
 
 ```json
 {
@@ -148,23 +148,23 @@ La configuration BGP est un peu plus complexe :
     }
 }
 ```
-Tout d'abords, on retrouve les principaux éléments :
+Tout d'abord, on retrouve les principaux éléments :
 - as-number
 - router-id
 
 On a ensuite 2 types d'objets, des VRF et des Adress-Family.
 
-Tout d'abords, les Adress-Family "IPV4" et "VPNV4" sont des listes de voisin BGP associés à certains paramétre de configuration optionnelle.
+Tout d'abord, les Address-Family "IPV4" et "VPNV4" sont des listes de voisins BGP associés à certains paramètres de configuration optionnelle.
 
-Les VRF sont plus sofistiqué, on y retrouve :
+Les VRF sont plus sofistiquées, on y retrouve :
 - name : Le nom de la VRF
-- route_distinguisher : Le RD associés à cette VRF
-- route_target_export & route_target_import : Les RT en import et export associés à cette VRF
-- interfaces : La liste des interfaces associés à cette VRF
-- members : Une Address-Family BGP associés à cette VRF
+- route_distinguisher : Le RD associé à cette VRF
+- route_target_export & route_target_import : Les RT en import et export associés à cette VRF, ils représentent le client
+- interfaces : La liste des interfaces associées à cette VRF
+- members : Une Address-Family BGP associée à cette VRF
 
 # Auto-configurateur
 
-L'autoconfigurateur est composés de 2 fichiers :
-- `AutoConfig.py` qui va convertir le fichiers d'intention en un ensemble d'objet Python (Router, PC, Interfaces, BGP, OSPF, MPLS, VRF, AddressFamily...). Il en existe 2 types, les Hardwares (Router, PC, Interfaces) et les Protocoles (MPLS, BGP...). Les Hardwares contienent sous forme de liste les interfaces et les protocoles associés. Si un protocole spécifiant une interfaces est définies sur un Routeur alors l'interface comme le routeur partagerons le même objet Protocoles. Les protocoles possédent des export différencié pour les routers ou les interfaces. A la fin de l'éxécution, le programme va exporter l'ensemble des commandes à éxécuter dans GNS3.
-- `AutoConfigTelnet.py`qui va récuperer l'ensemble des commandes précédemment générés, identifier les ports des machines virtuel, s'y connecter et transmettre en simultanées l'ensemble des commandes.
+L'autoconfigurateur est composé de 2 fichiers :
+- `AutoConfig.py` qui va convertir le fichiers d'intention en un ensemble d'objet Python (Router, PC, Interfaces, BGP, OSPF, MPLS, VRF, AddressFamily...). Il en existe 2 types, les Hardwares (Router, PC, Interfaces) et les Protocoles (MPLS, BGP...). Les Hardwares contienent sous forme de liste, les interfaces et les protocoles associés. Si un protocole spécifiant une interface est défini sur un Routeur alors l'interface comme le routeur partageront le même objet Protocole. Les protocoles possédant des export différenciés pour les routeurs ou les interfaces. A la fin de l'éxécution, le programme va exporter l'ensemble des commandes à éxécuter dans GNS3.
+- `AutoConfigTelnet.py`qui va récuperer l'ensemble des commandes précédemment générés, identifier les ports des machines virtuel, s'y connecter et transmettre en simultané l'ensemble des commandes.
